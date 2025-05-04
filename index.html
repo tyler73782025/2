@@ -1,0 +1,1936 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>小魔流RPG</title>
+<style>
+  body {
+    background: #f0f8ff;
+    text-align: center;
+    font-family: 'Microsoft JhengHei';
+  }
+
+  button {
+    padding: 10px 20px;
+    font-size: 20px;
+    margin: 10px;
+  }
+
+
+
+  @keyframes blink {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  max-width: 800px; /* 5 張卡片 x 卡寬度 + gap */
+  margin: 20px auto;
+}
+
+  
+  
+
+  .flip-card {
+    background-color: transparent;
+    width: 160px;
+    height: 220px;
+    perspective: 1000px;
+    flex-shrink: 0;
+  }
+
+  .flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.8s;
+    cursor: pointer;
+  }
+
+  .flip-card.flipped .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+.flip-card-front {
+  background: linear-gradient(135deg, #d0ebff, #a5d8ff); /* 淺藍漸層 */
+  color: #1c2b33;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  font-weight: bold;
+  border: 2px solid #74c0fc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+
+
+
+  .flip-card-back {
+    background-color: white;
+    color: black;
+    transform: rotateY(180deg);
+    padding: 10px;
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: left;
+  }
+  
+  
+  
+.card-loading {
+  display: flex;
+  flex-direction: row;       /* ✅ 水平排列 */
+  justify-content: center;   /* ✅ 主軸置中 */
+  align-items: center;       /* ✅ 垂直置中 */
+  width: 100%;               /* ✅ 占滿整行寬度才能真正置中 */
+  gap: 12px;
+  margin: 30px auto;
+}
+#loadingAreaWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+
+.card-loading {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 30px auto;
+  width: 100%;
+  max-width: 600px;
+}
+
+.loading-card {
+  width: 60px;
+  height: 90px;
+  background: linear-gradient(135deg, #d0ebff, #a5d8ff); /* 淺藍漸層 */
+  color: #1c2b33;
+  font-size: 32px;
+  font-weight: bold;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: spinCard 0.8s infinite ease-in-out;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.2), 0 0 12px #74c0fc;
+  transform-origin: center center;
+  animation: spinCard 1s infinite ease-in-out;
+
+}
+
+.loading-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-card:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes spinCard {
+  0% {
+    transform: rotateY(0deg) scale(1);
+  }
+  50% {
+    transform: rotateY(180deg) scale(1.08); /* ✅ 放大 8% */
+  }
+  100% {
+    transform: rotateY(360deg) scale(1);
+  }
+}
+
+
+
+  .hidden {
+  display: none !important;
+}
+
+/* ✅ 只有翻開卡片（.flipped）時才套用效果 */
+.flip-card.flipped.card-green .flip-card-back {
+  box-shadow: 0 0 10px #0f0, 0 0 16px #8f8;
+  border: 2px solid #0f0;
+}
+
+.flip-card.flipped.card-blue .flip-card-back {
+  box-shadow: 0 0 12px #00f, 0 0 18px #0ff;
+  border: 2px solid #00f;
+}
+
+.flip-card.flipped.card-purple .flip-card-back {
+  box-shadow: 0 0 16px purple, 0 0 24px violet;
+  border: 2px solid purple;
+}
+
+.flip-card.flipped.card-gold .flip-card-back {
+  box-shadow: 0 0 20px gold, 0 0 30px gold;
+  border: 2px solid gold;
+}
+
+.flip-card.flipped.card-red .flip-card-back {
+  box-shadow: 0 0 24px red, 0 0 36px #ff4444;
+  border: 2px solid red;
+}
+
+
+
+
+
+/*按鈕*/
+.draw-button {
+  padding: 12px 32px;
+  margin: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(to right, #74c0fc, #4dabf7);
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.4);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.3s ease;
+}
+
+.draw-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 14px rgba(0, 123, 255, 0.6);
+}
+
+.draw-button:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 6px rgba(0, 123, 255, 0.3);
+}
+
+  
+  
+  
+  
+  
+  
+/*融合卡片*/
+  .select-checkbox {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    transform: scale(1.4);
+    accent-color: #74c0fc;
+    cursor: pointer;
+    z-index: 2;
+  }
+
+  .flip-card-inner {
+    position: relative;
+  }
+  
+  
+  
+  
+  
+  
+  
+/*背包按鈕*/
+/* 背包排序按鈕區塊美化 */
+#sortOptions {
+  margin: 15px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* 每顆排序按鈕 */
+#sortOptions button {
+  font-size: 12px;
+  padding: 3px 8px;
+  background-color: #d0e6ff;
+  border: none;
+  border-radius: 6px;
+  color: #003366;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+    margin:5px;
+}
+
+#sortOptions button:hover {
+  background-color: #a2c8f0;
+}
+
+#sortOptions button:active {
+  background-color: #a2c8f0;
+  transform: scale(0.97);
+}
+
+
+
+#filterOptions {
+  margin: 15px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* 每顆排序按鈕 */
+#filterOptions button {
+  font-size: 12px;
+  padding: 3px 8px;
+  background-color: #d0e6ff;
+  border: none;
+  border-radius: 6px;
+  color: #003366;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#filterOptions button:hover {
+  background-color: #a2c8f0;
+}
+
+#filterOptions button:active {
+  background-color: #a2c8f0;
+  transform: scale(0.97);
+}
+
+
+  
+  /* 美化捲軸：針對背包區域 */
+#backpackModal::-webkit-scrollbar {
+  width: 10px;
+}
+
+#backpackModal::-webkit-scrollbar-track {
+  background: #dceeff; /* 捲軸底色 */
+  border-radius: 10px;
+}
+
+#backpackModal::-webkit-scrollbar-thumb {
+  background-color: #74b9ff; /* 捲軸滑塊 */
+  border-radius: 10px;
+  border: 2px solid #dceeff; /* 外框感 */
+}
+
+/* Firefox 專用捲軸 */
+#backpackModal {
+  scrollbar-width: thin;
+  scrollbar-color: #74b9ff #dceeff;
+}
+
+
+
+/*對戰*/
+.battle-btn {
+  padding: 10px 18px;
+  font-size: 14px;
+  border: none;
+  background: linear-gradient(to right, #a0c4ff, #70a1ff);
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+
+
+
+.battle-btn:hover {
+  background: linear-gradient(to right, #70a1ff, #4d7cff);
+}
+
+.battle-target-btn {
+  background: linear-gradient(to right, #ff9a9e, #fad0c4);
+  color: #660000;
+  font-weight: bold;
+  border: 2px solid #ff8888;
+}
+
+.battle-target-btn:hover {
+  background: linear-gradient(to right, #ff6b81, #fdb7b7);
+  color: white;
+}
+
+
+
+#battleLog {
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+
+/* 攻擊動畫：閃紅 */
+@keyframes hit-flash {
+  0%   { filter: brightness(1) contrast(1); }
+  25%  { filter: brightness(1.2) contrast(1.5) drop-shadow(0 0 5px red); }
+  50%  { filter: brightness(0.8) contrast(1); }
+  75%  { filter: brightness(1.2) contrast(1.2); }
+  100% { filter: brightness(1) contrast(1); }
+}
+
+.hit-effect {
+  animation: hit-flash 0.4s ease;
+}
+
+
+@keyframes screenShake {
+  0% { transform: translate(0px, 0px); }
+  20% { transform: translate(-5px, 5px); }
+  40% { transform: translate(5px, -5px); }
+  60% { transform: translate(-5px, 0px); }
+  80% { transform: translate(5px, 5px); }
+  100% { transform: translate(0px, 0px); }
+}
+
+.shake {
+  animation: screenShake 0.3s ease;
+}
+
+/*劍動畫*/
+.slash-effect {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  width: 0px;
+  height: 4px;
+  background: linear-gradient(to right, white, red, transparent);
+  transform: translateY(-50%);
+  animation: slashAnim 0.4s ease-out forwards;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+@keyframes slashAnim {
+  0% {
+    width: 0px;
+    opacity: 1;
+  }
+  50% {
+    width: 300px;
+    opacity: 1;
+  }
+  100% {
+    width: 300px;
+    opacity: 0;
+  }
+}
+
+  
+  
+</style>
+
+</head>
+<body>
+
+  
+  
+
+<!-- 顯示玩家目前裝備與攻擊力-->
+<div id="playerPanel" style="font-size: 14px; line-height: 1; background: #f0f8ff; padding: 12px 20px; border-radius: 12px; width: fit-content; margin: 0 auto; box-shadow: 0 0 8px rgba(0,0,0,0.05);">
+  <table style="border-collapse: collapse;">
+    <tr><td style="padding: 2px 8px;">👤 玩家名稱</td><td><span id="playerName">讀取中...</span></td></tr>
+    <tr><td style="padding: 2px 8px;">💰 金錢</td><td><span id="playerMoney">讀取中...</span></td></tr>
+    <tr><td style="padding: 6px 0;" colspan="2"><hr style="margin: 6px 0;"></td></tr>
+    <tr><td style="padding: 2px 8px;">🗡️ 武器</td><td><span id="equipWeapon">—</span></td></tr>
+    <tr><td style="padding: 2px 8px;">👕 身穿</td><td><span id="equipBody">—</span></td></tr>
+    <tr><td style="padding: 2px 8px;">🧥 披掛</td><td><span id="equipCloak">—</span></td></tr>
+    <tr><td style="padding: 2px 8px;">📿 項鍊</td><td><span id="equipNecklace">—</span></td></tr>
+    <tr><td style="padding: 2px 8px;">👢 腳穿</td><td><span id="equipBoots">—</span></td></tr>
+    <tr><td style="padding: 6px 0;" colspan="2"><hr style="margin: 6px 0;"></td></tr>
+    <tr><td style="padding: 2px 8px;">⚔️ 攻擊力</td><td><span id="statATK">0</span></td></tr>
+    <tr><td style="padding: 2px 8px;">🛡️ 防禦力</td><td><span id="statDEF">0</span></td></tr>
+    <tr><td style="padding: 2px 8px;">❤️ HP</td><td><span id="statHP">0</span></td></tr>
+    <tr><td style="padding: 2px 8px;">💧 MP</td><td><span id="statMP">0</span></td></tr>
+    <tr><td style="padding: 2px 8px;">🌀 速度</td><td><span id="statSPD">0</span></td></tr>
+    <tr><td style="padding: 2px 8px;">🌈 屬性</td><td><span id="statAttr">🍃0 🔥0 💧0 ⚡0</span></td></tr>
+  </table>
+</div>
+
+
+  
+  
+<!-- 🎒 背包按鈕 -->
+<button class="draw-button" onclick="startBattle()">遇敵測試</button>
+<button class="draw-button" onclick="openBackpack()">查看背包</button>
+<button id="singleDrawBtn" class="draw-button" onclick="drawCard('single')">單抽</button>
+<button id="tenDrawBtn" class="draw-button" onclick="drawCard('ten')">10連抽</button>
+
+
+
+
+
+
+
+
+
+
+<!-- 🧳 無痕背包彈出視窗 -->
+<div id="backpackModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999;">
+  <div style="background:#E6F4FF; margin:5% auto; width:90%; max-width:800px; border-radius:15px; overflow:hidden;">
+
+    <!-- 不滾動的上方按鈕區塊 -->
+    <div style="padding: 16px; border-bottom: 1px solid #ccc; background: #E6F4FF;">
+ 
+      <button class="draw-button" onclick="attemptFusion()">融合選取卡片</button>
+      <button class="draw-button" onclick="attemptSell()">賣出選取卡片</button>
+      <button class="draw-button" onclick="attemptEquip()">穿戴選取卡片</button>
+      <button class="draw-button" onclick="closeBackpack()">關閉</button>
+
+      
+<!-- 🔽 背包排序列 -->      
+<div id="sortOptions" style="  margin: 0; display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; line-height: 1;">
+
+        <button onclick="setSort('稀有度')">稀有度</button>
+        <button onclick="setSort('等級')">等級</button>
+        <button onclick="setSort('攻擊力')">攻擊力</button>
+        <button onclick="setSort('防禦力')">防禦力</button>
+        <button onclick="setSort('HP')">HP</button>
+        <button onclick="setSort('MP')">MP</button>
+        <button onclick="setSort('速度')">速度</button>
+		<button onclick="setRarityFilter('紅')">紅</button>
+        <button onclick="setRarityFilter('金')">金</button>
+        <button onclick="setRarityFilter('紫')">紫</button>
+        <button onclick="setRarityFilter('藍')">藍</button>
+        <button onclick="setRarityFilter('綠')">綠</button>
+        <button onclick="setRarityFilter('白')">白</button>
+        <button onclick="setRarityFilter('全部')">全部</button>
+</div>
+
+      <!-- 🧩 背包部位過濾 -->
+      <div id="filterOptions" style="margin: 0px 0 0 0; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center;">
+        <button onclick="setFilter('全部')">全部</button>
+        <button onclick="setFilter('武器')">武器</button>
+        <button onclick="setFilter('身穿')">身穿</button>
+        <button onclick="setFilter('披掛')">披掛</button>
+        <button onclick="setFilter('項鍊')">項鍊</button>
+        <button onclick="setFilter('腳穿')">腳穿</button>
+      </div>
+    </div>
+
+    <!-- 可滾動的卡片區域 -->
+    <div style="max-height: 70vh; overflow-y: auto; padding: 20px;">
+      <div id="backpackCards" class="card-container"></div>
+    </div>
+
+  </div>
+</div>
+
+
+
+
+
+
+
+
+<!-- ✅ 不要外層 wrapper 了，直接卡片容器處理 -->
+<div id="loadingArea" class="card-loading hidden">
+  <div class="loading-card">❓</div>
+  <div class="loading-card">❓</div>
+  <div class="loading-card">❓</div>
+</div>
+
+
+
+
+
+<button class="draw-button" onclick="flipAllCards()" id="flipAllBtn" style="display: none;">全部翻開</button>
+
+
+<div id="cardResult" class="card-container"></div>
+
+
+
+
+
+
+<!-- 🌿 草怪戰鬥視窗 -->
+<div id="battleModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:999;">
+  <div style="background:#fff; margin:5% auto; padding:20px; width:95%; max-width:600px; border-radius:15px; font-size:14px; line-height:1.5;">
+
+    
+<div id="atbTimeline" style="height: 30px; background: #ddd; border-radius: 12px; overflow: hidden; margin-bottom: 10px; position: relative;">
+  <!-- 玩家點 -->
+  <div id="playerDot" style="width: 16px; height: 16px; background: #66ccff; border-radius: 50%; position: absolute; top: 7px; left: 0px;"></div>
+  <!-- 怪物點將由 JS 自動產生 -->
+</div>
+
+
+
+    
+<div style="position: relative; height: 120px; margin-bottom: 10px;">
+
+
+<div style="position: relative; height: 140px; margin-bottom: 10px;">
+  <!-- 怪物們 -->
+<div id="monsterSprites" style="position: relative; height: 140px; margin-bottom: 10px;"></div>
+
+</div>
+
+
+
+  <!-- 玩家（右下） -->
+<div id="playerSprite" style="position: absolute; bottom: 0; right: 0; text-align: center;">
+    <div style="font-size: 40px;">🧍</div>
+    <div style="font-weight: bold;">玩家</div>
+    <div style="width: 100px; background: #ccc; border-radius: 6px; margin-top: 4px;">
+      <div id="playerHpBar" style="height: 10px; background: #66ccff; width: 100%; border-radius: 6px;"></div>
+    </div>
+    <div style="font-size: 12px;">HP：<span id="playerHP">100</span> / <span id="playerMaxHP">100</span></div>
+	<div style="font-size: 12px;">MP：<span id="playerMP">100</span></div>
+
+  </div>
+</div>
+
+
+
+
+    <div id="battleLog" style="background:#f4f4f4; border:1px solid #ccc; border-radius:8px; padding:10px; height:120px; overflow-y:auto; margin-bottom:10px;">
+      <em>戰鬥開始！</em>
+    </div>
+
+
+	<!-- 🎮 指令按鈕 -->
+<div id="battleActions" style="display:flex; flex-wrap:wrap; justify-content:center; gap:10px;">
+
+    <div id="battleActions" style="display:flex; flex-wrap:wrap; justify-content:center; gap:10px;">
+      <button onclick="showAttackTargets()" class="battle-btn">普通攻擊</button>
+      <button id="magicBtn" class="battle-btn" onclick="showMagicMenu()">法術攻擊</button>
+      <button disabled class="battle-btn">使用道具</button>
+      <button onclick="endBattle()" class="battle-btn" style="background:#aaa;">逃跑</button>
+    </div>
+
+	<!-- 🔽 顯示攻擊目標按鈕 -->
+<div id="monsterTargetOptions" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; min-height: 60px; align-items: center; width: 100%;"></div>
+
+	
+  </div>
+  
+</div>
+
+
+
+
+<script>
+
+
+
+
+
+
+
+
+
+  const apiBase = 'https://script.google.com/macros/s/AKfycby_dcDx5ZGZlMCDI2jMzy4Pr-fr2X6GFxs7H7a_fHK6e1CQIqMsxbs5_vZHH9zEq-gB/exec';
+
+let currentFilter = "全部";         // 原本的部位篩選（武器、身穿等）
+
+
+function setFilter(part) {
+  currentFilter = part;
+  loadBackpack(); // 重新載入背包並應用篩選
+}
+
+
+let currentRarityFilter = "全部";   // 新增：稀有度篩選
+function setRarityFilter(colorName) {
+  currentRarityFilter = colorName;
+  loadBackpack();
+}
+
+
+
+
+function loadPlayer() {
+    const username = "admin"; // 暫時固定帳號
+
+    fetch(`${apiBase}?username=${username}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.遊戲名稱) {
+          document.getElementById("playerName").innerText = data.遊戲名稱;
+          document.getElementById("playerMoney").innerText = data.金錢;
+        } else {
+          alert("讀取玩家資料失敗！");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("讀取錯誤");
+      });
+	  
+	  
+  // 讀取穿戴裝備能力值
+  fetch(`${apiBase}?mode=equippedStats&username=${username}`)
+    .then(res => res.json())
+    .then(stat => {
+      document.getElementById("statATK").innerText = stat["攻擊力"] || 0;
+      document.getElementById("statDEF").innerText = stat["防禦力"] || 0;
+      document.getElementById("statHP").innerText = stat["HP"] || 0;
+      document.getElementById("statMP").innerText = stat["MP"] || 0;
+      document.getElementById("statSPD").innerText = stat["速度"] || 0;
+      document.getElementById("statAttr").innerText =
+        `🍃${stat["屬性風"] || 0} 🔥${stat["屬性火"] || 0} 💧${stat["屬性水"] || 0} ⚡${stat["屬性雷"] || 0}`;
+    })
+    .catch(err => {
+      console.error("讀取能力值失敗", err);
+    });	  
+
+
+// 讀取目前穿戴的裝備名稱與等級
+fetch(`${apiBase}?mode=inventory&username=${username}`)
+  .then(res => res.json())
+  .then(inventory => {
+    const uuidMap = {};
+    inventory.forEach(item => {
+      uuidMap[item.UUID] = `${item["名稱"]}${item["等級"]}`;
+    });
+
+    // 讀玩家資料以找出穿戴中的 UUID
+    fetch(`${apiBase}?username=${username}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("equipWeapon").innerText = uuidMap[data["配戴武器"]] || "—";
+        document.getElementById("equipBody").innerText = uuidMap[data["配戴身穿"]] || "—";
+        document.getElementById("equipCloak").innerText = uuidMap[data["配戴披掛"]] || "—";
+        document.getElementById("equipNecklace").innerText = uuidMap[data["配戴項鍊"]] || "—";
+        document.getElementById("equipBoots").innerText = uuidMap[data["配戴腳穿"]] || "—";
+      });
+  });
+	  
+	  
+	  
+}
+
+
+
+  // 頁面載入時自動呼叫
+  window.onload = loadPlayer;
+
+
+
+
+
+// 🎴 抽卡主函式（單抽 or 十連）
+// mode 參數為 "single" 或 "ten"，分別代表單抽或十連抽
+function drawCard(mode) {
+  // 🔒 禁用抽卡按鈕，避免連點
+  document.getElementById("singleDrawBtn").disabled = true;
+  document.getElementById("tenDrawBtn").disabled = true;
+
+  // 🧾 準備要送出的資料（action + 使用者名稱）
+  const formData = new FormData();
+  formData.append("action", mode);          // "single" 或 "ten"
+  formData.append("username", "admin");     // 測試帳號
+
+  // 🎞️ 抽卡動畫區 & 結果區
+  const loading = document.getElementById("loadingArea");   // loading動畫
+  const container = document.getElementById("cardResult");  // 抽卡結果容器
+
+  // 🔄 初始化畫面：清除卡片、隱藏翻牌按鈕、顯示 loading
+  document.getElementById("flipAllBtn").style.display = 'none';
+  container.innerHTML = '';
+  loading.classList.remove("hidden");
+
+  // 📡 發送 POST 請求給 Google Apps Script 後端
+  fetch(apiUrl, {
+    method: "POST",
+    body: formData,
+  })
+  .then(res => res.json()) // 解析回傳資料（包含 money, cards）
+  .then(data => {
+    // 💰 更新金錢顯示（扣款後的）
+    document.getElementById("playerMoney").innerText = data.money;
+
+    // ⏳ 等待動畫播放一段時間後顯示卡片
+    setTimeout(() => {
+      loading.classList.add("hidden"); // 隱藏 loading
+
+      // 🔄 對每張卡片建立一個可翻轉卡片元件
+      data.cards.forEach(card => {
+        const cardWrapper = document.createElement("div");
+
+        // 🎨 根據稀有度設定卡片外框樣式（紅、金、紫、藍、綠）
+        let rarity = parseInt(card["稀有度"]);
+        let rarityClass = "";
+        if (rarity >= 11) rarityClass = "card-red";
+        else if (rarity >= 9) rarityClass = "card-gold";
+        else if (rarity >= 7) rarityClass = "card-purple";
+        else if (rarity >= 5) rarityClass = "card-blue";
+        else if (rarity >= 3) rarityClass = "card-green";
+
+        cardWrapper.className = `flip-card ${rarityClass}`;
+
+        // 🃏 卡片前後的 HTML 結構（翻開前是問號，翻開後顯示資訊）
+        cardWrapper.innerHTML = `
+          <div class="flip-card-inner">
+            <div class="flip-card-front">❓</div>
+            <div class="flip-card-back">
+              <strong>✨ ${card["名稱"]}</strong><br>
+              部位：${card["部位"]}<br>
+              攻擊力：${card["攻擊力"]}<br>
+              防禦力：${card["防禦力"]}<br>
+              HP：${card["HP"]}<br>
+              MP：${card["MP"]}<br>
+              速度：${card["速度"]}<br>
+              屬性：${card["屬性"]}
+            </div>
+          </div>
+        `;
+
+        // 🖱️ 點擊卡片時會翻面（只翻一次）
+        cardWrapper.onclick = () => {
+          cardWrapper.classList.add('flipped');
+        };
+
+        // 顯示「全部翻開」按鈕
+        document.getElementById("flipAllBtn").style.display = 'inline-block';
+
+        // 加入結果區
+        container.appendChild(cardWrapper);
+      });
+
+      // ✅ 抽卡完畢後恢復按鈕
+      document.getElementById("singleDrawBtn").disabled = false;
+      document.getElementById("tenDrawBtn").disabled = false;
+    }, 1500); // 動畫延遲時間
+  })
+  .catch(err => {
+    // ❌ 例外錯誤處理
+    loading.style.display = 'none';
+    container.innerHTML = "❌ 錯誤：抽卡失敗";
+    console.error(err);
+
+    // ✅ 即使失敗也恢復按鈕
+    document.getElementById("singleDrawBtn").disabled = false;
+    document.getElementById("tenDrawBtn").disabled = false;
+  });
+}
+
+	
+	
+	
+//一鍵翻開
+function flipAllCards() {
+  const cards = document.querySelectorAll('.flip-card');
+  cards.forEach(card => {
+    card.classList.add('flipped');
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+const apiUrl = 'https://script.google.com/macros/s/AKfycby_dcDx5ZGZlMCDI2jMzy4Pr-fr2X6GFxs7H7a_fHK6e1CQIqMsxbs5_vZHH9zEq-gB/exec';
+
+let currentSortField = '稀有度'; // 預設排序欄位
+let sortAscending = false;       // 預設為降冪排序（由大到小）
+
+// 🔀 背包排序功能函式
+// 參數 field 為排序欄位名稱（例如：攻擊力、等級、稀有度）
+function setSort(field) {
+  // 如果目前的排序欄位就是這個欄位，則改變排序方向（升冪 ⇄ 降冪）
+  if (currentSortField === field) {
+    sortAscending = !sortAscending;
+  } else {
+    // 否則就設定新的排序欄位，預設為降冪（由大到小）
+    currentSortField = field;
+    sortAscending = false;
+  }
+
+  // 🧳 重新載入背包並套用新的排序條件
+  loadBackpack();
+}
+
+
+// 🎒 開啟背包視窗（顯示無痕背包彈出區塊）
+function openBackpack() {
+  // 顯示背包彈出視窗
+  document.getElementById("backpackModal").style.display = "block";
+
+  // 載入玩家的背包資料（會自動套用排序與篩選條件）
+  loadBackpack();
+}
+
+// 🎒 關閉背包視窗（隱藏無痕背包彈出區塊）
+function closeBackpack() {
+  // 隱藏背包視窗
+  document.getElementById("backpackModal").style.display = "none";
+}
+
+
+function loadBackpack() {
+  const username = "admin"; // 暫時固定帳號
+  const url = `${apiUrl}?mode=inventory&username=${username}`;
+
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      data.sort((a, b) => {
+        const valA = parseInt(a[currentSortField]) || 0;
+        const valB = parseInt(b[currentSortField]) || 0;
+        return sortAscending ? valA - valB : valB - valA;
+      });
+
+      const container = document.getElementById("backpackCards");
+      container.innerHTML = '';
+
+data.forEach(card => {
+  // ✅ 篩選部位
+  const matchSlot = currentFilter === "全部" || card["部位"] === currentFilter;
+
+  // ✅ 篩選稀有度顏色
+  const rarity = parseInt(card["稀有度"]);
+  let matchRarity = true;
+  switch (currentRarityFilter) {
+    case "紅": matchRarity = rarity >= 11; break;
+    case "金": matchRarity = rarity >= 9 && rarity < 11; break;
+    case "紫": matchRarity = rarity >= 7 && rarity < 9; break;
+    case "藍": matchRarity = rarity >= 5 && rarity < 7; break;
+    case "綠": matchRarity = rarity >= 3 && rarity < 5; break;
+    case "白": matchRarity = rarity < 3; break;
+  }
+
+  if (matchSlot && matchRarity) {
+    const cardWrapper = createCardElement(card);
+    container.appendChild(cardWrapper);
+  }
+});
+
+
+
+
+      const buttons = document.querySelectorAll("#sortOptions button");
+buttons.forEach(btn => {
+  btn.style.backgroundColor = btn.innerText === currentSortField ? "#a2c8f0" : "#d0e6ff";
+});
+
+    })
+    .catch(err => {
+      console.error("讀取背包失敗：", err);
+      alert("背包讀取失敗！");
+    });
+}
+
+</script>
+ <script>
+ //融合卡片
+  let selectedFusionCards = [];
+
+  function toggleFusionSelection(uuid, checkbox) {
+    if (checkbox.checked) {
+      selectedFusionCards.push(uuid);
+    } else {
+      selectedFusionCards = selectedFusionCards.filter(id => id !== uuid);
+    }
+    console.log("目前選取的卡片 UUID：", selectedFusionCards);
+  }
+
+
+
+function formatAttributes(card) {
+  const parts = [];
+  const attrs = ["屬性風", "屬性火", "屬性水", "屬性雷"];
+  const names = { "屬性風": "風", "屬性火": "火", "屬性水": "水", "屬性雷": "雷" };
+
+  attrs.forEach(attr => {
+    const val = parseInt(card[attr]);
+    if (val > 0) {
+      parts.push(`${names[attr]}${val > 1 ? val : ''}`);
+    }
+  });
+
+  return parts.join(" ");
+}
+/*
+function formatAttributesWithColor(card) {
+  const result = [];
+  const attrs = [
+    { key: "屬性火", label: "火", emoji: "🔥", color: "#f66" },
+    { key: "屬性水", label: "水", emoji: "💧", color: "#69f" },
+    { key: "屬性風", label: "風", emoji: "🍃", color: "#3c6" },
+    { key: "屬性雷", label: "雷", emoji: "⚡", color: "#fc0" }
+  ];
+
+  attrs.forEach(attr => {
+    const count = parseInt(card[attr.key]);
+    if (count > 0) {
+      const label = `${attr.emoji}<span style="color:${attr.color}; font-weight:bold;">${attr.label}${count > 1 ? count : ''}</span>`;
+      result.push(label);
+    }
+  });
+
+  return result.join(" ");
+}
+
+
+*/
+function formatAttributesWithColor(card) {
+  const result = [];
+  const attrs = [
+    { key: "屬性火", emoji: "🔥", color: "#f66" },
+    { key: "屬性水", emoji: "💧", color: "#69f" },
+    { key: "屬性風", emoji: "🍃", color: "#3c6" },
+    { key: "屬性雷", emoji: "⚡", color: "#fc0" }
+  ];
+
+  attrs.forEach(attr => {
+    const count = parseInt(card[attr.key]);
+    if (count > 0) {
+      const label = `<span style="color:${attr.color}; font-weight:bold; font-size:12px; margin-right:4px;">${attr.emoji}${count > 1 ? count : ''}</span>`;
+      result.push(label);
+    }
+  });
+
+  return result.join("");
+}
+
+
+
+
+
+
+function createCardElement(card) {
+  const cardWrapper = document.createElement("div");
+
+  let rarity = parseInt(card["稀有度"]);
+  let rarityClass = "";
+  if (rarity >= 11) rarityClass = "card-red";
+  else if (rarity >= 9) rarityClass = "card-gold";
+  else if (rarity >= 7) rarityClass = "card-purple";
+  else if (rarity >= 5) rarityClass = "card-blue";
+  else if (rarity >= 3) rarityClass = "card-green";
+
+  cardWrapper.className = `flip-card ${rarityClass} flipped`;
+
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.className = "select-checkbox";
+  checkbox.onclick = (e) => {
+    e.stopPropagation();
+    toggleFusionSelection(card["UUID"], checkbox);
+  };
+
+    cardWrapper.innerHTML = `
+      <div class="flip-card-inner flipped">
+        <div class="flip-card-front">❓</div>
+        <div class="flip-card-back">
+          <strong>✨ ${card["名稱"]}</strong><br>
+          部位：${card["部位"]}<br>
+          攻擊力：${card["攻擊力"]}<br>
+          防禦力：${card["防禦力"]}<br>
+          HP：${card["HP"]}<br>
+          MP：${card["MP"]}<br>
+          速度：${card["速度"]}<br>
+          等級：${card["等級"]}<br>
+屬性：<br>${formatAttributesWithColor(card)}
+
+        </div>
+      </div>`;
+
+  cardWrapper.querySelector(".flip-card-inner").appendChild(checkbox);
+
+  return cardWrapper;
+}
+
+  
+  
+  
+  
+  
+  
+  function attemptFusion() {
+  if (selectedFusionCards.length !== 3) {
+    alert("請選擇三張卡片進行融合！");
+    return;
+  }
+
+  // 向背包資料查詢這些卡片的詳細內容
+  const username = "admin";
+  fetch(`${apiUrl}?mode=inventory&username=${username}`)
+    .then(res => res.json())
+    .then(data => {
+      const selectedCards = data.filter(card => selectedFusionCards.includes(card["UUID"]));
+
+      if (selectedCards.length !== 3) {
+        alert("無法讀取選取的卡片資料");
+        return;
+      }
+
+      const [name, level] = [selectedCards[0]["名稱"], selectedCards[0]["等級"]];
+      const allSameName = selectedCards.every(c => c["名稱"] === name);
+      const allSameLevel = selectedCards.every(c => c["等級"] === level);
+      const levelInt = parseInt(level);
+
+      if (!allSameName || !allSameLevel) {
+        alert("融合失敗：必須是相同名稱與等級的卡片！");
+        return;
+      }
+
+      if (levelInt >= 10) {
+        alert("已達最高等級，無法融合！");
+        return;
+      }
+
+      // 傳送到後端進行融合
+      const formData = new FormData();
+      formData.append("action", "fuse");
+      formData.append("username", username);
+      formData.append("uuids", JSON.stringify(selectedFusionCards));
+
+
+      fetch(apiUrl, {
+        method: "POST",
+        body: formData
+      })
+        .then(res => res.json())
+        .then(result => {
+          if (result.success) {
+            alert("融合成功！");
+            selectedFusionCards = [];
+            loadBackpack(); // 重新讀取背包
+          } else {
+            alert("融合失敗：" + (result.message || "未知錯誤"));
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("融合請求失敗！");
+        });
+    });
+}
+
+
+//賣卡片
+function attemptSell() {
+  if (selectedFusionCards.length === 0) {
+    alert("請先選擇要賣出的卡片！");
+    return;
+  }
+
+  const confirmed = confirm("確定要賣出選取的卡片嗎？");
+  if (!confirmed) return;
+
+  const formData = new FormData();
+  formData.append("action", "sell");
+  formData.append("username", "admin");
+  formData.append("uuids", JSON.stringify(selectedFusionCards));
+
+  fetch(apiUrl, {
+    method: "POST",
+    body: formData
+  })
+    .then(res => res.json())
+    .then(result => {
+      if (result.success) {
+        alert(`成功賣出卡片！獲得金額：${result.earned}`);
+        selectedFusionCards = [];
+        loadPlayer();  // 更新金錢顯示
+        loadBackpack(); // 重新載入背包
+      } else {
+        alert("賣出失敗：" + (result.message || "未知錯誤"));
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert("請求失敗！");
+    });
+}
+
+function equipItem(uuid, slot) {
+  const username = "admin";
+
+  const formData = new FormData();
+  formData.append("action", "equip");
+  formData.append("username", username);
+  formData.append("uuid", uuid);
+  formData.append("slot", slot); // 例如「配戴武器」
+
+  fetch(apiUrl, {
+    method: "POST",
+    body: formData
+  })
+    .then(res => res.json())
+    .then(result => {
+      if (result.success) {
+        alert("穿戴成功！");
+        loadPlayer();  // 重新顯示能力值
+      } else {
+        alert("穿戴失敗：" + (result.message || "未知錯誤"));
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert("穿戴請求失敗！");
+    });
+}
+
+
+function attemptEquip() {
+  if (selectedFusionCards.length !== 1) {
+    alert("請選擇一張卡片進行穿戴！");
+    return;
+  }
+
+  const username = "admin"; // 暫時固定
+  const uuid = selectedFusionCards[0];
+
+  // 去背包查這張卡的部位
+  fetch(`${apiUrl}?mode=inventory&username=${username}`)
+    .then(res => res.json())
+    .then(data => {
+      const card = data.find(c => c.UUID === uuid);
+      if (!card) {
+        alert("找不到這張卡片");
+        return;
+      }
+
+      const slot = `配戴${card["部位"]}`; // e.g. 配戴武器
+      const formData = new FormData();
+      formData.append("action", "equip");
+      formData.append("username", username);
+      formData.append("uuid", uuid);
+      formData.append("slot", slot);
+
+      return fetch(apiUrl, { method: "POST", body: formData });
+    })
+    .then(res => res.json())
+    .then(result => {
+      if (result.success) {
+        alert("穿戴成功！");
+        selectedFusionCards = [];
+        loadPlayer();
+        loadBackpack();
+      } else {
+        alert("穿戴失敗：" + (result.message || "未知錯誤"));
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert("穿戴請求失敗！");
+    });
+}
+
+
+
+
+
+
+
+// === 戰鬥變數（只保留這一組）===
+let player = {};
+let battleEnded = false;
+
+let monsters = [];
+let playerDotProgress = 0;
+let monsterDotProgress = [0, 0];
+let timelineLoop = null;
+const TIMELINE_MAX = 100;
+let isPlayerReady = false;
+let timelinePaused = false;
+
+
+
+
+
+
+
+let waitingForPlayer = false; // 玩家是否正在等待選擇動作
+
+
+
+
+const magicSkills = [
+  {
+    name: "劍一",
+    basePower: 100,
+    attr: { 火: 0, 水: 0, 風: 0, 雷: 0 },
+    mpCost: 10,
+    target: "single",
+    multiplier: 1.5,
+    effect: "none",
+    learnLevel: 2
+  },
+  {
+    name: "劍二",
+    basePower: 150,
+    attr: { 火: 1, 水: 0, 風: 0, 雷: 0 },
+    mpCost: 15,
+    target: "all",
+    multiplier: 2.0,
+    effect: "none",
+    learnLevel: 3
+  }
+];
+
+
+
+function showMagicMenu() {
+  const container = document.getElementById("monsterTargetOptions");
+  container.innerHTML = "";
+
+  magicSkills.forEach((skill, index) => {
+    const btn = document.createElement("button");
+    btn.className = "battle-btn";
+    btn.innerText = `${skill.name}（消耗 ${skill.mpCost} MP）`;
+    btn.onclick = () => {
+      if (player.mp < skill.mpCost) {
+        alert("MP 不足！");
+        return;
+      }
+      if (skill.target === "single") {
+        showMagicTargets(index); // 選擇目標
+      } else {
+        castMagic(index, null); // 直接全體施法
+      }
+    };
+    container.appendChild(btn);
+  });
+}
+
+function castMagic(skillIndex, targetIndex) {
+  const skill = magicSkills[skillIndex];
+  player.mp -= skill.mpCost;
+  document.getElementById("statMP").innerText = player.mp;
+document.getElementById("playerMP").innerText = player.mp; // ✅ 這是戰鬥畫面
+  if (skill.target === "all") {
+    monsters.forEach((m, i) => {
+      if (m.hp > 0) applyMagicDamage(skill, i);
+    });
+  } else {
+    applyMagicDamage(skill, targetIndex);
+  }
+
+  playerDotProgress = 0;
+  isPlayerReady = false;
+  timelinePaused = false;
+  hideBattleActions();
+}
+
+
+function applyMagicDamage(skill, targetIndex) {
+  const target = monsters[targetIndex];
+  const attackerAttr = player.attr;
+  const defenderAttr = target.attr;
+
+  let attackerFactor =
+    (1 + 0.1 * attackerAttr.火) *
+    (1 + 0.1 * attackerAttr.水) *
+    (1 + 0.1 * attackerAttr.風) *
+    (1 + 0.1 * attackerAttr.雷);
+
+  let skillFactor =
+    (1 + 0.1 * (skill.attr.火 || 0)) *
+    (1 + 0.1 * (skill.attr.水 || 0)) *
+    (1 + 0.1 * (skill.attr.風 || 0)) *
+    (1 + 0.1 * (skill.attr.雷 || 0));
+
+  const defenderFactor =
+    (1 + 0.1 * defenderAttr.火) *
+    (1 + 0.1 * defenderAttr.水) *
+    (1 + 0.1 * defenderAttr.風) *
+    (1 + 0.1 * defenderAttr.雷);
+
+  let rawDmg = ((player.atk * attackerFactor) + (skill.basePower * skillFactor));
+  rawDmg *= skill.multiplier;
+  rawDmg /= (1 + (target.def * defenderFactor / 3));
+  rawDmg *= (0.8 + Math.random() * 0.4);
+
+  const dmg = Math.round(rawDmg);
+  target.hp = Math.max(0, target.hp - dmg);
+
+  logMessage(`🌀 ${player.name} 對 ${target.name} 施展 ${skill.name}，造成 ${dmg} 傷害！`, "player");
+
+  // 更新血量 UI
+  document.getElementById(`monsterHP${targetIndex}`).innerText = target.hp;
+  document.getElementById(`monsterHpBar${targetIndex}`).style.width = `${(target.hp / target.maxHp) * 100}%`;
+
+  // 🌀 播放特效動畫
+  showSlashEffect(targetIndex); // ✅ 斬擊
+  const sprite = document.getElementById(`monsterSprite${targetIndex}`);
+  const modal = document.getElementById("battleModal");
+
+  if (sprite) sprite.classList.add("hit-effect");
+  if (modal) modal.classList.add("shake");
+
+  setTimeout(() => {
+    if (sprite) sprite.classList.remove("hit-effect");
+    if (modal) modal.classList.remove("shake");
+  }, 300);
+}
+function applyMagicDamage(skill, targetIndex) {
+  const target = monsters[targetIndex];
+  const attackerAttr = player.attr;
+  const defenderAttr = target.attr;
+
+  let attackerFactor =
+    (1 + 0.1 * attackerAttr.火) *
+    (1 + 0.1 * attackerAttr.水) *
+    (1 + 0.1 * attackerAttr.風) *
+    (1 + 0.1 * attackerAttr.雷);
+
+  let skillFactor =
+    (1 + 0.1 * (skill.attr.火 || 0)) *
+    (1 + 0.1 * (skill.attr.水 || 0)) *
+    (1 + 0.1 * (skill.attr.風 || 0)) *
+    (1 + 0.1 * (skill.attr.雷 || 0));
+
+  const defenderFactor =
+    (1 + 0.1 * defenderAttr.火) *
+    (1 + 0.1 * defenderAttr.水) *
+    (1 + 0.1 * defenderAttr.風) *
+    (1 + 0.1 * defenderAttr.雷);
+
+  let rawDmg = ((player.atk * attackerFactor) + (skill.basePower * skillFactor));
+  rawDmg *= skill.multiplier;
+  rawDmg /= (1 + (target.def * defenderFactor / 3));
+  rawDmg *= (0.8 + Math.random() * 0.4);
+
+  const dmg = Math.round(rawDmg);
+  target.hp = Math.max(0, target.hp - dmg);
+
+  logMessage(`🌀 ${player.name} 對 ${target.name} 施展 ${skill.name}，造成 ${dmg} 傷害！`, "player");
+
+  // 更新血量 UI
+  document.getElementById(`monsterHP${targetIndex}`).innerText = target.hp;
+  document.getElementById(`monsterHpBar${targetIndex}`).style.width = `${(target.hp / target.maxHp) * 100}%`;
+
+  // 🌀 播放特效動畫
+  showSlashEffect(targetIndex); // ✅ 斬擊
+  const sprite = document.getElementById(`monsterSprite${targetIndex}`);
+  const modal = document.getElementById("battleModal");
+
+  if (sprite) sprite.classList.add("hit-effect");
+  if (modal) modal.classList.add("shake");
+
+  setTimeout(() => {
+    if (sprite) sprite.classList.remove("hit-effect");
+    if (modal) modal.classList.remove("shake");
+  }, 300);
+}
+
+
+
+
+function startBattle() {
+  const username = "admin";
+  battleEnded = false; // ⬅️ 這一行是新的
+  document.getElementById("playerHpBar").style.width = "100%";
+
+monsters = [
+  { name: "草怪1", atk: 80, def: 40, hp: 50, maxHp: 50, spd: 25, attr: { 火: 1, 水: 0, 風: 1, 雷: 0 } },
+  { name: "草怪2", atk: 100, def: 60, hp: 80, maxHp: 80, spd: 50, attr: { 火: 0, 水: 1, 風: 0, 雷: 1 } },
+  { name: "史萊姆", atk: 50, def: 30, hp: 60, maxHp: 60, spd: 70, attr: { 火: 0, 水: 0, 風: 1, 雷: 1 } }
+];
+
+  fetch(`${apiBase}?mode=equippedStats&username=${username}`)
+    .then(res => res.json())
+    .then(stat => {
+	renderMonsterSprites();   // 渲染怪物圖示與血條
+createMonsterDots();      // 渲染每隻怪物的行動點
+
+      player = {
+        name: "玩家",
+        atk: parseInt(stat["攻擊力"]) || 0,
+        def: parseInt(stat["防禦力"]) || 0,
+        hp: parseInt(stat["HP"]) || 0,
+        maxHp: parseInt(stat["HP"]) || 0,
+		mp: parseInt(stat["MP"]) || 0,  // 🔥 新增這行
+        spd: parseInt(stat["速度"]) || 0,
+        attr: {
+          火: parseInt(stat["屬性火"]) || 0,
+          水: parseInt(stat["屬性水"]) || 0,
+          風: parseInt(stat["屬性風"]) || 0,
+          雷: parseInt(stat["屬性雷"]) || 0,
+        }
+      };
+
+      // 顯示玩家資料
+      document.getElementById("playerHP").innerText = player.hp;
+      document.getElementById("playerMaxHP").innerText = player.maxHp;
+document.getElementById("playerMP").innerText = player.mp;
+
+      // 顯示怪物血條
+      monsters.forEach((m, i) => {
+        const hpText = document.getElementById(`monsterHP${i}`);
+        const hpBar = document.getElementById(`monsterHpBar${i}`);
+        if (hpText) hpText.innerText = m.hp;
+        if (hpBar) hpBar.style.width = `${(m.hp / m.maxHp) * 100}%`;
+
+        // 重設怪物行動條位置
+        const dot = document.getElementById(`monsterDot${i}`);
+        if (dot) dot.style.left = "0%";
+      });
+
+      // 顯示戰鬥畫面
+      document.getElementById("battleModal").style.display = "block";
+renderMonsterSprites(); // ✅ 渲染怪物圖示
+
+      // 顯示開場訊息
+      document.getElementById("battleLog").innerHTML = "";
+      const monsterNames = monsters.map(m => m.name).join(" 和 ");
+      logMessage(`⚔️ ${player.name} 遭遇 ${monsterNames}！`, "system");
+
+      // 初始化時間條進度與狀態
+      playerDotProgress = 0;
+      monsterDotProgress = monsters.map(() => 0); // 每隻怪一個進度條
+      isPlayerReady = false;
+      timelinePaused = false;
+
+      updateTimeline();
+
+      if (timelineLoop) clearInterval(timelineLoop);
+      timelineLoop = setInterval(updateTimeline, 100);
+    })
+    .catch(err => {
+      console.error("讀取玩家能力失敗：", err);
+      alert("無法讀取玩家能力值，請稍後再試！");
+    });
+}
+
+
+
+
+
+
+
+function updateHpBars() {
+  monsters.forEach((m, i) => {
+    const bar = document.getElementById(`monsterHpBar${i}`);
+    if (bar) {
+      bar.style.width = (m.hp / m.maxHp * 100) + "%";
+    }
+  });
+
+  document.getElementById("playerHpBar").style.width = (player.hp / player.maxHp * 100) + "%";
+}
+
+
+
+
+
+function endBattle() {
+  document.getElementById("battleModal").style.display = "none";
+
+  if (timelineLoop) clearInterval(timelineLoop);
+  timelineLoop = null;
+
+  playerDotProgress = 0;
+  monsterDotProgress = 0;
+  isPlayerReady = false;
+  timelinePaused = false;
+
+  player = {};
+  monster = {};
+
+  const playerDot = document.getElementById("playerDot");
+  const monsterDot = document.getElementById("monsterDot");
+  if (playerDot) playerDot.style.left = `0%`;
+  if (monsterDot) monsterDot.style.left = `0%`;
+
+  const log = document.getElementById("battleLog");
+  if (log) log.innerHTML = "";
+}
+
+
+
+function showAttackTargets() {
+  const container = document.getElementById("monsterTargetOptions");
+  container.innerHTML = ""; // 清空
+
+  monsters.forEach((m, i) => {
+    if (m.hp > 0) {
+      const btn = document.createElement("button");
+      btn.className = "battle-btn battle-target-btn";
+
+      btn.innerText = `攻擊 ${m.name}`;
+      btn.onclick = () => {
+        playerAttack(i);         // 執行攻擊
+        container.innerHTML = ""; // 關閉攻擊目標視窗
+      };
+      container.appendChild(btn);
+    }
+  });
+
+  logMessage("👉 選擇攻擊目標", "system");
+}
+
+function showMagicTargets(skillIndex) {
+  const container = document.getElementById("monsterTargetOptions");
+  container.innerHTML = "";
+
+  monsters.forEach((m, i) => {
+    if (m.hp > 0) {
+      const btn = document.createElement("button");
+      btn.className = "battle-btn battle-target-btn";
+      btn.innerText = `對 ${m.name} 施展 ${magicSkills[skillIndex].name}`;
+      btn.onclick = () => castMagic(skillIndex, i);
+      container.appendChild(btn);
+    }
+  });
+
+  logMessage("👉 選擇施法目標", "system");
+}
+
+
+
+
+
+
+
+function updateTimeline() {
+  if (timelinePaused) return;
+
+  // 玩家時間條推進
+  if (!isPlayerReady) playerDotProgress += player.spd * 0.05;
+  const playerDot = document.getElementById("playerDot");
+  if (playerDot) playerDot.style.left = `${Math.min(playerDotProgress, TIMELINE_MAX)}%`;
+
+  // 玩家可行動
+  if (playerDotProgress >= TIMELINE_MAX && !isPlayerReady) {
+    isPlayerReady = true;
+    playerDotProgress = TIMELINE_MAX;
+    timelinePaused = true;
+    showBattleActions();
+  }
+
+  // 怪物時間條推進
+  monsters.forEach((m, i) => {
+    if (m.hp <= 0) {
+      const dot = document.getElementById(`monsterDot${i}`);
+      if (dot) dot.style.display = "none";
+      return;
+    }
+
+    monsterDotProgress[i] += m.spd * 0.05;
+    const dot = document.getElementById(`monsterDot${i}`);
+    if (dot) {
+      dot.style.display = "block";
+      dot.style.left = `${Math.min(monsterDotProgress[i], TIMELINE_MAX)}%`;
+    }
+
+    if (monsterDotProgress[i] >= TIMELINE_MAX) {
+      monsterDotProgress[i] = 0;
+      monsterAttack(i);
+    }
+  });
+
+  // ✅ 最後才檢查戰鬥是否結束
+  if (!battleEnded) {
+  if (player.hp <= 0) {
+    battleEnded = true;
+    endFight("你被打倒了…💀");
+  } else if (monsters.every(m => m.hp <= 0)) {
+    battleEnded = true;
+    endFight("你擊敗了所有敵人！🎉");
+  }
+}
+
+}
+
+
+
+
+
+  const playerDot = document.getElementById("playerDot");
+  
+
+  if (playerDot) playerDot.style.left = `${Math.min(playerDotProgress, TIMELINE_MAX)}%`;
+
+
+  if (playerDotProgress >= TIMELINE_MAX && !isPlayerReady) {
+    isPlayerReady = true;
+    playerDotProgress = TIMELINE_MAX;
+    timelinePaused = true; // ✅ 暫停整體時間條
+    showBattleActions();
+  }
+
+  if (monsterDotProgress >= TIMELINE_MAX) {
+    monsterDotProgress = 0;
+    monsterAttack();
+  }
+
+
+function showBattleActions() {
+  document.getElementById("battleActions").style.display = "flex";
+  document.getElementById("magicBtn").disabled = false; // ✅ 啟用法術攻擊按鈕
+  logMessage("🔔 請選擇你的行動！", "system");
+
+  const container = document.getElementById("monsterTargetOptions");
+  container.innerHTML = ""; // 不要先顯示攻擊目標按鈕
+}
+
+
+
+
+function hideBattleActions() {
+  document.getElementById("battleActions").style.display = "none";
+}
+
+// ✅ 改寫 playerAttack 執行後續流程，並重新啟動時間條
+function playerAttack(targetIndex) {
+  const target = monsters[targetIndex];
+  const dmg = calculateDamage(player, target);
+  target.hp = Math.max(0, target.hp - dmg);
+
+  logMessage(`${player.name} 對 ${target.name} 造成 ${dmg} 傷害！`, "player");
+
+  document.getElementById(`monsterHP${targetIndex}`).innerText = target.hp;
+  document.getElementById(`monsterHpBar${targetIndex}`).style.width = `${(target.hp / target.maxHp) * 100}%`;
+
+  // 攻擊動畫
+  const sprite = document.getElementById(`monsterSprite${targetIndex}`);
+  const modal = document.getElementById("battleModal");
+  if (sprite) sprite.classList.add("hit-effect");
+  if (modal) modal.classList.add("shake");
+
+  setTimeout(() => {
+    if (sprite) sprite.classList.remove("hit-effect");
+    if (modal) modal.classList.remove("shake");
+  }, 300);
+
+  // 檢查怪物死亡
+  if (target.hp <= 0) {
+    logMessage(`🎉 ${target.name} 被擊敗！`, "system");
+  }
+
+  playerDotProgress = 0;
+  isPlayerReady = false;
+  timelinePaused = false;
+  hideBattleActions();
+}
+
+
+
+function playerMagicAttack(targetIndex) {
+  const MP_COST = 20;
+  if (player.mp < MP_COST) {
+    logMessage("⚠️ MP 不足，無法施放法術", "system");
+    return;
+  }
+
+  player.mp -= MP_COST;
+  document.getElementById("playerMP").innerText = player.mp;
+
+  const target = monsters[targetIndex];
+  const baseDmg = calculateDamage(player, target);
+  const dmg = Math.round(baseDmg * 1.5); // 法術傷害加成
+
+  target.hp = Math.max(0, target.hp - dmg);
+
+  logMessage(`✨ ${player.name} 對 ${target.name} 施放法術造成 ${dmg} 傷害！`, "player");
+
+  document.getElementById(`monsterHP${targetIndex}`).innerText = target.hp;
+  document.getElementById(`monsterHpBar${targetIndex}`).style.width = `${(target.hp / target.maxHp) * 100}%`;
+
+  const sprite = document.getElementById(`monsterSprite${targetIndex}`);
+  const modal = document.getElementById("battleModal");
+  if (sprite) sprite.classList.add("hit-effect");
+  if (modal) modal.classList.add("shake");
+
+  setTimeout(() => {
+    if (sprite) sprite.classList.remove("hit-effect");
+    if (modal) modal.classList.remove("shake");
+  }, 300);
+
+  if (target.hp <= 0) {
+    logMessage(`🎉 ${target.name} 被法術擊敗！`, "system");
+  }
+
+  playerDotProgress = 0;
+  isPlayerReady = false;
+  timelinePaused = false;
+  hideBattleActions();
+}
+
+
+
+function monsterAttack(index) {
+  const attacker = monsters[index];
+  if (!attacker || attacker.hp <= 0) return;
+
+  const dmg = calculateDamage(attacker, player);
+  player.hp = Math.max(0, player.hp - dmg);
+
+  logMessage(`${attacker.name} 攻擊你造成 ${dmg} 傷害！`, "monster");
+
+  document.getElementById("playerHP").innerText = player.hp;
+  updateHpBars();
+
+  // ✅ 加上受擊動畫與畫面震動
+  const sprite = document.getElementById("playerSprite");
+  const modal = document.getElementById("battleModal");
+
+  if (sprite) sprite.classList.add("hit-effect");
+  modal.classList.add("shake");
+
+  setTimeout(() => {
+    if (sprite) sprite.classList.remove("hit-effect");
+    modal.classList.remove("shake");
+  }, 300);
+
+  if (player.hp <= 0) endFight("你被打倒了…💀");
+}
+
+
+
+function endFight(msg) {
+  logMessage(`<strong>${msg}</strong>`, "system");
+
+  // 關閉按鈕
+  document.getElementById("battleActions").style.display = "none";
+  document.getElementById("monsterTargetOptions").innerHTML = "";
+
+  // 等待 1.5 秒後自動關閉戰鬥視窗
+  setTimeout(() => {
+    endBattle();
+  }, 1500);
+}
+
+
+
+function logMessage(message, type = "system") {
+  const log = document.getElementById("battleLog");
+  const div = document.createElement("div");
+
+  if (type === "player") {
+    div.style.textAlign = "right";
+    div.style.color = "#0033aa";
+  } else if (type === "monster") {
+    div.style.textAlign = "left";
+    div.style.color = "#aa0000";
+  } else {
+    div.style.textAlign = "center";
+    div.style.color = "#4444cc";
+    message = `<strong>${message}</strong>`;  // ✅ 只有 system 才加粗
+  }
+
+  div.innerHTML = message;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+
+
+function calculateDamage(attacker, defender) {
+  const attackerAttr = attacker.attr;
+  const defenderAttr = defender.attr;
+
+  // 屬性加成（可複雜化）
+  const attackerFactor =
+    (1 + 0.1 * (attackerAttr.火 || 0)) *
+    (1 + 0.1 * (attackerAttr.水 || 0)) *
+    (1 + 0.1 * (attackerAttr.風 || 0)) *
+    (1 + 0.1 * (attackerAttr.雷 || 0));
+
+  const defenderFactor =
+    (1 + 0.1 * (defenderAttr.火 || 0)) *
+    (1 + 0.1 * (defenderAttr.水 || 0)) *
+    (1 + 0.1 * (defenderAttr.風 || 0)) *
+    (1 + 0.1 * (defenderAttr.雷 || 0));
+
+  let raw = (attacker.atk * attackerFactor) / (1 + (defender.def * defenderFactor / 3));
+  raw *= (0.8 + Math.random() * 0.4); // 浮動係數 0.8~1.2
+  return Math.round(raw);
+}
+
+
+
+function showSlashEffect(targetIndex) {
+  const target = document.getElementById(`monsterSprite${targetIndex}`);
+  if (!target) return;
+
+  const rect = target.getBoundingClientRect();
+
+  const effect = document.createElement("div");
+  effect.className = "slash-effect";
+
+  // 🧩 計算斬擊動畫出現的位置（畫面上怪物中間）
+  effect.style.position = "fixed";  // 用 fixed 才不會被父層影響
+  effect.style.left = `${rect.left + rect.width / 2 - 150}px`; // 150 是動畫寬度的一半
+  effect.style.top = `${rect.top + rect.height * 0.3}px`; // 怪物頭上偏下一點
+
+  document.body.appendChild(effect);
+
+  setTimeout(() => {
+    effect.remove();
+  }, 500);
+}
+
+
+
+
+</script>
+  <script>
+function renderMonsterSprites() {
+  const container = document.getElementById("monsterSprites");
+  container.innerHTML = ""; // 清空原本內容
+
+  monsters.forEach((m, i) => {
+    const sprite = document.createElement("div");
+    sprite.id = `monsterSprite${i}`;
+    sprite.style.position = "absolute";
+    sprite.style.left = `${i * 130}px`; // 每隻怪間距
+    sprite.innerHTML = `
+      <div style="font-size: 40px;">🌿</div>
+      <div style="font-weight: bold;">${m.name}</div>
+      <div style="width: 100px; background: #ccc; border-radius: 6px;">
+        <div id="monsterHpBar${i}" style="height: 10px; background: #66cc66; width: 100%; border-radius: 6px;"></div>
+      </div>
+      <div style="font-size: 12px;">HP：<span id="monsterHP${i}">${m.hp}</span></div>
+    `;
+    container.appendChild(sprite);
+  });
+}
+// ⬇️ 新增這段：生成怪物行動點 UI（monsterDot）
+function createMonsterDots() {
+  const timeline = document.getElementById("atbTimeline");
+  // 移除舊有 monsterDot
+  [...timeline.querySelectorAll(".monster-dot")].forEach(dot => dot.remove());
+
+  monsters.forEach((_, i) => {
+    const dot = document.createElement("div");
+    dot.className = "monster-dot";
+    dot.id = `monsterDot${i}`;
+    dot.style.width = "16px";
+    dot.style.height = "16px";
+    dot.style.borderRadius = "50%";
+    dot.style.background = i % 2 === 0 ? "#66cc66" : "#aaffaa";
+    dot.style.position = "absolute";
+    dot.style.top = "7px";
+    dot.style.left = "0px";
+    timeline.appendChild(dot);
+  });
+}
+
+// ⬇️ 呼叫位置：在 startBattle 的 monsters 設定完成後加入：createMonsterDots();
+</script>
+  
+</body>
+</html>
